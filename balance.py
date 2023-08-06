@@ -82,8 +82,7 @@ def fetch(data, headers, search):
         sys.exit()
 
 
-
-    return json.loads(res_json)
+    return res_json
 
 
 if __name__ == "__main__":
