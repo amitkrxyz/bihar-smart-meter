@@ -1,5 +1,5 @@
-# sbpdcl-smart-meter
-> View your SBPDCL electricity smart balance effortlessly with this python script.
+# bihar-smart-meter
+> View your electricity smart balance effortlessly with this python script.
 
 
 ## Usage
