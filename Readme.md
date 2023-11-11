@@ -5,4 +5,4 @@
 ## Usage
 `python balance.py <consumer-number>`
 
-## ![image](https://i.imgur.com/jW6PBal.gif)
+## ![demo](https://i.postimg.cc/vB4P1nx6/demo.gif)
