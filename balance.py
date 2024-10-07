@@ -1,11 +1,12 @@
 #!/usr/bin/env python
 
-import requests
 import argparse
-import sys
 import json
+import sys
 import xml.etree.ElementTree as ET
+import http.client
 
+HOST = "hargharbijli.bsphcl.co.in"
 
 def main():
     parser = argparse.ArgumentParser(description="Get smart meter balance")
@@ -35,15 +36,30 @@ def main():
     print(json.dumps(res, indent=2))
 
 
-def fetch_consumer_details(con_num: str):
-    URL = f"http://hargharbijli.bsphcl.co.in/WebService/WebServiceGIS.asmx/GetConsumerDtls?ConId={con_num}"
+def fetch_balance(con_num: str):
+    URL = f"/WebService/WebServiceGIS.asmx/GetSMPaymentDetails?StrCANumber={con_num}"
     try:
-        response = requests.get(URL)
-    except requests.RequestException as e:
+        res_xml = request_get(HOST, URL)
+    except Exception as e:
         print("Error: {}".format(e))
         sys.exit()
 
-    res_xml = response.text
+    try:
+        balance_dict = parse_xml(res_xml)
+    except Exception as e:
+        print("Error: {}".format(e))
+        sys.exit()
+    return balance_dict
+
+
+def fetch_consumer_details(con_num: str):
+    URL = f"/WebService/WebServiceGIS.asmx/GetConsumerDtls?ConId={con_num}"
+    try:
+        res_xml = request_get(HOST, URL)
+    except Exception as e:
+        print("Error: {}".format(e))
+        sys.exit()
+
     try:
         details_dict = parse_xml(res_xml)[0]
     except Exception as e:
@@ -52,21 +68,13 @@ def fetch_consumer_details(con_num: str):
     return details_dict
 
 
-def fetch_balance(con_num: str):
-    URL = f"http://hargharbijli.bsphcl.co.in/WebService/WebServiceGIS.asmx/GetSMPaymentDetails?StrCANumber={con_num}"
-    try:
-        response = requests.get(URL)
-    except requests.RequestException as e:
-        print("Error: {}".format(e))
-        sys.exit()
-
-    res_xml = response.text
-    try:
-        balance_dict = parse_xml(res_xml)
-    except Exception as e:
-        print("Error: {}".format(e))
-        sys.exit()
-    return balance_dict
+def request_get(host: str, url: str):
+    conn = http.client.HTTPConnection(host)
+    conn.request("GET", url)
+    res = conn.getresponse()
+    data = res.read()
+    conn.close()
+    return data.decode()
 
 
 def parse_xml(xml_string: str):
